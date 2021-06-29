@@ -126,7 +126,7 @@ bool Setup(struct X11* x11)
 			       DefaultVisual(x11->dpy, x11->screen),
 			       CWBackPixmap | CWEventMask,
 			       &wa);
-  XStoreName(x11->dpy, x11->termwin, "eduterm");
+  XStoreName(x11->dpy, x11->termwin, "Y-Terminal");
   XMapWindow(x11->dpy, x11->termwin);
   x11->termgc = XCreateGC(x11->dpy, x11->termwin, 0, NULL);
 
