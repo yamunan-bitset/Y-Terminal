@@ -1,10 +1,7 @@
 #define _XOPEN_SOURCE 600
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <stddef.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <pty.h>
