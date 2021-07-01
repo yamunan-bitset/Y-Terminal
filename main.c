@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -100,9 +101,19 @@ int Run(struct PTY *pty, struct X11 *x11)
   return 0;
 }
 
-int
-main()
+void usage() { puts("Usage: yterm\nThere isn't anything else you can do, \
+other than just running this executable"); exit(0); }
+
+int main(int argc, char** argv)
 {
+  int o;
+  while ((o = getopt(argc, argv, "h")) != -1)
+    {
+      switch (o)
+	{
+	case 'h': usage(); break;
+	}
+    }
   struct PTY pty;
   struct X11 x11;
 
