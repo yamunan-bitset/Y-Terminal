@@ -9,40 +9,45 @@
 #include "x11.h"
 #include "pty.h"
 
+extern struct Wind;                    // ansi.c
+extern void Handle(struct Wind, char); // ansi.c
+extern char FromUTF8(char);            // ansi.c
+
+struct Wind wind;
+
 void Key(XKeyEvent* ev, struct PTY* pty)
 {
   char buf[32];
-  int i, num;
   KeySym ksym;
 
-  num = XLookupString(ev, buf, sizeof buf, &ksym, 0);
-  for (i = 0; i < num; i++)
-    write(pty->master, &buf[i], 1);
+  int num = XLookupString(ev, buf, sizeof buf, &ksym, 0);
+  for (unsigned int i = 0; i < num; i++)
+    {
+      Handle(wind, FromUTF8(&buf[i]));
+      write(pty->master, &buf[i], 1);
+    }
 }
 
 void Redraw(struct X11* x11)
 {
-  int x, y;
   char buf[1];
 
   XSetForeground(x11->dpy, x11->termgc, x11->col_bg);
   XFillRectangle(x11->dpy, x11->termwin, x11->termgc, 0, 0, x11->w, x11->h);
 
   XSetForeground(x11->dpy, x11->termgc, x11->col_fg);
-  for (y = 0; y < x11->buf_h; y++)
-    {
-      for (x = 0; x < x11->buf_w; x++)
-        {
-	  buf[0] = x11->buf[y * x11->buf_w + x];
-	  if (!iscntrl(buf[0]))
-            {
-	      XDrawString(x11->dpy, x11->termwin, x11->termgc,
-			  x * x11->font_width,
-			  y * x11->font_height + x11->xfont->ascent,
-			  buf, 1);
-            }
-        }
-    }
+  for (unsigned int y = 0; y < x11->buf_h; y++)
+    for (unsigned int x = 0; x < x11->buf_w; x++)
+      {
+	buf[0] = x11->buf[y * x11->buf_w + x];
+	if (!iscntrl(buf[0]))
+	  {
+	    XDrawString(x11->dpy, x11->termwin, x11->termgc,
+			x * x11->font_width,
+			y * x11->font_height + x11->xfont->ascent,
+			buf, 1);
+	  }
+      }
 
   XSetForeground(x11->dpy, x11->termgc, x11->col_fg);
   XFillRectangle(x11->dpy, x11->termwin, x11->termgc,
@@ -98,13 +103,13 @@ bool Setup(struct X11* x11)
     }
   x11->col_fg = color.pixel;
 
-  /* The terminal will have a fixed size of 80x25 cells. This is an
+  /* The terminal will have a fixed size of 150x50 cells. This is an
    * arbitrary number. No resizing has been implemented and child
    * processes can't even ask us for the current size (for now).
    *
    * buf_x, buf_y will be the current cursor position. */
-  x11->buf_w = 80;
-  x11->buf_h = 25;
+  x11->buf_w = 200;
+  x11->buf_h = 90;
   x11->buf_x = 0;
   x11->buf_y = 0;
   x11->buf = calloc(x11->buf_w * x11->buf_h, 1);
