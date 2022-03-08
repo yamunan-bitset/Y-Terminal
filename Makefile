@@ -1,7 +1,7 @@
-CC         = cc
+CC         = c++
 CCFLAGS    = -I/usr/include/X11
-LINKERLIBS = -lX11 -lutil
-OBJS       = ansi.o tty.o window.o main.o
+LINKERLIBS = -lSDL -lutil
+OBJS       = main.o tty.o quickcg.o
 
 .PHONY: clean all
 

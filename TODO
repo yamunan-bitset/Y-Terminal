@@ -1,4 +1,0 @@
-ANSI Escape code:
-     - pollfd: https://github.com/bisqwit/that_terminal/blob/2056b37b61ebab17d1d7b748c06950e2163aa326/main.cc#L129
-     - ANSI Escape Code Handler: https://github.com/bisqwit/that_terminal/blob/2056b37b61ebab17d1d7b748c06950e2163aa326/tty/terminal.cc#L151
-     - /usr/src/linux/drivers/char/console.c (Debian)

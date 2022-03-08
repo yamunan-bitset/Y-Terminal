@@ -7,7 +7,6 @@
 #include <pty.h>
 
 #include "pty.h"
-#include "x11.h"
 
 #define TERM  "xterm-256color"
 #define SHELL getenv("SHELL")
@@ -86,7 +85,7 @@ bool Spawn(struct PTY* pty)
   perror("fork");
   return false;
 }
-
+/*
 bool Resize(struct PTY* pty, struct X11* x11)
 {
   struct winsize ws = {
@@ -94,6 +93,7 @@ bool Resize(struct PTY* pty, struct X11* x11)
     .ws_row = x11->buf_h,
   };
 
+  
   if (ioctl(pty->master, TIOCSWINSZ, &ws) == -1)
     {
       perror("ioctl(TIOCSWINSZ)");
@@ -102,3 +102,4 @@ bool Resize(struct PTY* pty, struct X11* x11)
 
   return true;
 }
+*/
