@@ -1,27 +1,46 @@
-#define _XOPEN_SOURCE 600
-#include <fcntl.h>
-#include <unistd.h>
-#include <pty.h>
-#include <cstdlib>
+#include "tty.hh"
 
-#include "pty.h"
-
-#define TERM  "xterm-256color"
-#define SHELL getenv("SHELL")
-
-int Spawn()
+int Spawn(struct PTY* pty)
 {
-  int fd, pid;
   struct winsize ws = {};
-  ws.ws_col = 800;
-  ws.ws_row = 800;
-  pid = forkpty(&fd, nullptr, nullptr, &ws);
-  if(!pid)
+  ws.ws_col = 80; // This is default, TODO: Resize
+  ws.ws_row = 25; // This is default, TODO: Resize
+  pty->pid = forkpty(&pty->fd, nullptr, nullptr, &ws);
+  if (!pty->pid)
     {
-      static char termstr[] = "TERM=xterm";
+      static char termstr[] = "TERM="TERM;
       putenv(termstr);
-      execl(std::getenv("SHELL"), std::getenv("SHELL"), "-l", "-i", nullptr);
+      execl(SHELL, SHELL, "-l", "-i", nullptr);
     }
-  fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
-  return fd;
+  fcntl(pty->fd, F_SETFL, fcntl(pty->fd, F_GETFL) | O_NONBLOCK);
+  return pty->fd;
+}
+
+int Send(struct PTY* pty, std::string_view buffer)
+{
+  return write(pty->fd, buffer.data(), buffer.size());
+}
+
+std::pair<std::string,int> Recv(struct PTY* pty)
+{
+    char buffer[4096];
+    std::pair<std::string,int> result;
+    result.second = read(pty->fd, buffer, sizeof(buffer));
+    if(result.second > 0)
+        result.first.assign(buffer, buffer+result.second);
+    return result;
+}
+/*
+char* Recv(struct PTY* pty)
+{
+  char buffer[4096];
+  read(pty->fd, buffer, sizeof(buffer));
+  return buffer;
+}
+*/
+void Close(struct PTY* pty)
+{
+  kill(pty->pid, SIGTERM);
+  close(pty->fd);
+  waitpid(pty->pid, nullptr, 0);
 }
